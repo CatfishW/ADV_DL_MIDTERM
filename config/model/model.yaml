@@ -1,0 +1,5 @@
+model:
+  name: 't5-small'
+  checkpoint: 'google-t5/t5-small'
+  resume: #'ckpt/checkpoint-1000'
+  train_loop_type: 'huggingface'
