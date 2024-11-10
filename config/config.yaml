@@ -1,3 +1,5 @@
 #include all yaml
 __include__: [./config/include/data.yaml,
-./config/model/model.yaml,]
+./config/model/model.yaml,
+./config/include/train.yaml
+]

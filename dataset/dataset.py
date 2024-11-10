@@ -6,9 +6,10 @@ from colorama import Fore, Style, init
 from config.config import cfg
 if cfg['data']['train_type'] == 'partial':
     ri = (datasets.ReadInstruction('train', to=95, unit='%'))
-    train_dataset = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2014", split=ri)
+    train_dataset = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2016", split=ri)
 elif cfg['data']['train_type'] == 'full':
-    train_dataset = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2014")
+    ri = (datasets.ReadInstruction('train', to=100, unit='%'))
+    train_dataset = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2016", split=ri)
 if cfg['data']['test_type'] == 'test_0_50pct_ds':
     ri = (datasets.ReadInstruction('train', to=50, unit='%'))
     test_dataset = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2016", split=ri)
@@ -18,7 +19,17 @@ elif cfg['data']['test_type'] == 'test_95_100pct_ds':
 else:
     raise NotImplementedError
 if cfg['data']['data_increment'] > 0:
-    ...
+    ri = (datasets.ReadInstruction('train', to=95, unit='%'))
+    increment_dataset1 = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2014",split=ri)
+    increment_dataset2 = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2015",split=ri)
+    train_dataset = datasets.concatenate_datasets([train_dataset, increment_dataset1, increment_dataset2])
+ri = (datasets.ReadInstruction('train', from_=95, unit='%'))
+eval_dataset1 = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2014", split=ri)
+eval_dataset2 = load_dataset("IWSLT/ted_talks_iwslt", language_pair=("en", "fr"), year="2015", split=ri)
+eval_dataset = datasets.concatenate_datasets([eval_dataset1, eval_dataset2])
+
+    
+
 
 
 #=====Download and Load the dataset=====
@@ -84,13 +95,9 @@ def compute_metrics(eval_preds):
 metric = evaluate.load("sacrebleu")
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=cfg['model']['name'])
 tokenized_books = train_dataset.map(preprocess_function, batched=True)
-tokenized_books_eval = test_dataset.map(preprocess_function, batched=True)
+tokenized_books_test = test_dataset.map(preprocess_function, batched=True)
+tokenized_books_eval = eval_dataset.map(preprocess_function, batched=True)
 #print train_dataset size and test_dataset size
-print(Fore.GREEN + "Train Dataset Size:")
-print(Fore.BLUE + str(len(tokenized_books['translation'])))
-print(Fore.GREEN + "Test Dataset Size:")
-print(Fore.BLUE + str(len(tokenized_books_eval['translation'])))
-print("==========================================================================================================")
 # Initialize colorama
 init(autoreset=True)
 # Show some pairing examples of the data
@@ -101,4 +108,11 @@ print(Fore.GREEN + "Data Example 2:")
 print(Fore.BLUE + 'language:', cfg['data']['source_lang'], '', Fore.RESET + tokenized_books_eval['translation'][1][cfg['data']['source_lang']][:30])
 print(Fore.RED + 'language:', cfg['data']['target_lang'], '', Fore.RESET + tokenized_books_eval['translation'][1][cfg['data']['target_lang']][:30])
 print("==========================================================================================================")
-
+print(Fore.GREEN + "Train Dataset Size:")
+print(Fore.BLUE + str(len(tokenized_books['translation'])))
+print(Fore.GREEN + "Test Dataset Size:")
+print(Fore.BLUE + str(len(tokenized_books_eval['translation'])))
+print(Fore.YELLOW + "Eval Dataset Size:")
+print(Fore.BLUE + str(len(tokenized_books_test['translation']))
+)
+print("==========================================================================================================")
