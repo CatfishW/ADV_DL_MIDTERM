@@ -3,5 +3,5 @@ model:
   checkpoint: 'google-t5/t5-small'
   resume: 'ckpt/checkpoint-63900'
   train_loop_type: 'huggingface'
-  do_eval: False
+  do_eval: True
   CUDA_VISIBLE_DEVICES: '0'

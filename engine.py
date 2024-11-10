@@ -1,4 +1,5 @@
 from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
+from transformers import AutoModelForSeq2SeqLM
 from config.config import cfg
 from model.model import model,tokenizer
 from dataset.dataset import compute_metrics,data_collator,tokenized_books,tokenized_books_eval,tokenized_books_test
@@ -32,9 +33,9 @@ if cfg['model']['train_loop_type'] == "huggingface":
         predict_with_generate=True,
         fp16=True, #change to bf16=True for XPU
         push_to_hub=False,
-        resume_from_checkpoint=cfg['model']['resume'],
         do_eval=cfg['model']['do_eval'],
     )
+    model = AutoModelForSeq2SeqLM.from_pretrained(cfg['model']['resume']) if cfg['model']['resume'] is not None else None
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,

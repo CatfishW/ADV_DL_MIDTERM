@@ -1,5 +1,5 @@
 train:
   learning_rate: 0.000008
   per_device_train_batch_size: 64
-  per_device_eval_batch_size: 1
-  num_train_epochs: 20
+  per_device_eval_batch_size: 16
+  num_train_epochs: 1
